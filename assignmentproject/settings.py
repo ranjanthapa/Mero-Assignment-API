@@ -35,9 +35,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # App Config
     "account.apps.AccountConfig",
+    "assignment.apps.AssignmentConfig",
+
+    # Third party
     "rest_framework",
-    "rest_framework.authtoken"
+    "rest_framework.authtoken",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -123,7 +129,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'reset_password_request': '2/minute',
+    }
 }
 
 # Email Configuration

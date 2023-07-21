@@ -4,11 +4,12 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 
 from django.core.mail import send_mail
-from django.template.loader import get_template, render_to_string
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from .models import UserProfile
 from .serializer import UserSerializer
+from .throttle import ResetPasswordRateThrottle
 
 from rest_framework.response import Response
 from rest_framework import generics, status
@@ -47,6 +48,13 @@ class LoginView(APIView):
         return Response({"error": "Invalid username or password."}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+class LogoutView(APIView):
+    def get(self, request):
+        logout(request)
+        login_url = request.build_absolute_uri(reverse("account:login"))
+        return Response({"message": f"Logout Successfully, {login_url} for login"})
+
+
 class SendPasswordResetOTP:
 
     @staticmethod
@@ -74,6 +82,8 @@ class SendPasswordResetOTP:
 
 
 class PasswordResetView(APIView):
+    throttle_classes = [ResetPasswordRateThrottle, ]
+
     def post(self, request):
         username = request.data.get("username")
         email = request.data.get("email")
